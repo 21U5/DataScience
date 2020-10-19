@@ -1,0 +1,5 @@
+# This folder contains python methods useful for the python programs (For the developer who's not so proficient in Python). 
+CodeReferences/
+
+# This folder is used for PyCharm, which is the IDE for developing in Python. Since only the files are necessary, this folder is ignored.
+.idea/

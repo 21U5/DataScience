@@ -15,40 +15,39 @@ def ecdf(data):
     return x,y
 
 def belmont_tasks_main():
-    # Task: create a function to convert time to milliseconds
+    # Task: create a function to convert time to milliseconds (Done: Used custom function convert_time_value_to_seconds to convert the string values to seconds.)
     belmont = pd.read_csv("belmont.csv", sep = ';', decimal= ",") # use delimeters, try to check if all data are available
 
-    # find max value in the column
-    outlier_max_column = belmont["Time"]
-    outlier_max = outlier_max_column.max()
+    time_column = belmont["Time"]
 
-    Year = belmont["Year"]
+    for i in range(len(time_column)):
+        time_column[i] = convert_time_value_to_seconds(time_column[i])
 
-    belmont["Miliseconds"] = belmont.Miliseconds.astype(float)
-    Time = belmont["Miliseconds"]
+    print(time_column)
 
-    # _ = plt.plot(Time, Year, '.')
-    # _ = plt.xlabel('belmont time in min')
-    # _ = plt.ylabel('Year')
-
-    mu_mean = np.mean(Time)
-    sigma_std = np.std(Time)
+    mu_mean = np.mean(time_column)
+    sigma_std = np.std(time_column)
     print('mean', mu_mean)
     print('standard deviation', sigma_std)
 
     # calculate Z-scores to find outliers
-    # Task: calc outliers using another methods see reccomandations
+    # Task: calc outliers using another methods see reccomandations (Done: Using boxplotting.)
 
-    Z_scores = (Time - mu_mean) / sigma_std
+    plt.boxplot(time_column)
 
-    Outliers_min = Z_scores.min()
-    # 1973 and 1970 years should be deleted from analysis
+    plt.show()
 
-    Outliers_max = Z_scores.max()
-    print('Outliers_min', Outliers_min * sigma_std + mu_mean)
-    print('Outliers_max', Outliers_max * sigma_std + mu_mean)
+    # 2 Outliers discovered: the min and the max value.
 
-    h_1 = sorted(Z_scores)  # sorted
+    Outliers_min = time_column.min()
+    Outliers_max = time_column.max()
+
+    # Displays the outliers.
+
+    print('Outliers_min', Outliers_min)
+    print('Outliers_max', Outliers_max)
+
+    h_1 = sorted(time_column)  # sorted
 
     fit = stats.norm.pdf(h_1, np.mean(h_1), np.std(h_1))  # this is a fitting indeed
 
@@ -62,13 +61,24 @@ def belmont_tasks_main():
     plt.ylim(-0.01, 0.42)
     plt.show()
 
-    # Task 1: convert to array and print the whole array, combine two columns Time and Z-scores and print as a table
+    # Task 1: convert to array and print the whole array, combine two columns Time and Z-scores and print as a table (Done: See below.)
+    Z_scores = (time_column - mu_mean) / sigma_std
+    for i in range(len(time_column)):
+        print(time_column[i].__str__() + " , " + Z_scores[i].__str__())
+
     # Task 2: delete outliers from the Time and print
 
-    # print(Time,Z_scores)
+    # Converts the time_column array into a list.
+    time_column_as_list = time_column.tolist()
+
+    # Removes the min and max value (the outliers).
+    time_column_as_list.remove(Outliers_min)
+    time_column_as_list.remove(Outliers_max)
+
+    time_column = np.array(time_column_as_list)
 
     #  a normal distribution with outliers
-    h = sorted(Time)  # sorted
+    h = sorted(time_column)  # sorted
 
     fit = stats.norm.pdf(h, np.mean(h), np.std(h))  # this is a fitting indeed
 
@@ -140,6 +150,12 @@ def belmont_tasks_main():
 
     # Print the result
     print('Probability of besting Secretariat:', prob)
+
+
+def convert_time_value_to_seconds(time_string : str) -> float:
+    minutes = int(time_string.rsplit(':', 1)[0])
+    seconds = float(time_string.rsplit(':', 1)[1])
+    return minutes * 60 + seconds
 
 
 if __name__ == "__main__":
